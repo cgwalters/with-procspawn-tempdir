@@ -1,0 +1,19 @@
+[package]
+name = "with_procspawn_tempdir"
+readme = "README.md"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+procspawn = "0.8"
+tempfile = "3.1.0"
+quote = "1.0.3"
+proc-macro2 = "1.0.10"
+syn = { version = "1.0.3", features = ["full"] }
+
+[dev-dependencies]
+anyhow = "1.0.28"
+
