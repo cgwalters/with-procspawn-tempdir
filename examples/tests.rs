@@ -21,7 +21,9 @@ fn err() -> Result<()> {
 
 fn main() -> Result<()> {
     procspawn::init();
+    let cwd = std::env::current_dir()?;
     basic()?;
+    assert_eq!(cwd, std::env::current_dir()?);
     println!("ok basic");
     err()?;
     println!("ok err");

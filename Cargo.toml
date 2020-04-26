@@ -1,5 +1,5 @@
 [package]
-name = "with_procspawn_tempdir"
+name = "with-procspawn-tempdir"
 readme = "README.md"
 version = "0.1.0"
 edition = "2018"
