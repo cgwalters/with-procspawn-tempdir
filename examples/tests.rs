@@ -19,6 +19,15 @@ fn err() -> Result<()> {
     Ok(())
 }
 
+#[with_procspawn_tempdir]
+fn nores() {
+}
+
+// #[with_procspawn_tempdir]
+// fn nores_panic() {
+//     panic!("oops")
+// }
+
 fn main() -> Result<()> {
     procspawn::init();
     let cwd = std::env::current_dir()?;
@@ -27,5 +36,9 @@ fn main() -> Result<()> {
     println!("ok basic");
     err()?;
     println!("ok err");
+    nores();
+    println!("ok nores");
+    // assert!(std::panic::catch_unwind(|| { nores_panic() }).is_err());
+    // println!("ok nores_panic");
     Ok(())
 }

@@ -24,19 +24,29 @@ use quote::quote;
 pub fn with_procspawn_tempdir(_: TokenStream, input: TokenStream) -> TokenStream {
     let mut func = syn::parse_macro_input!(input as syn::ItemFn);
     let fident = func.sig.ident.clone();
+    let rval = func.sig.output.clone();
+    let innercall = match rval {
+        syn::ReturnType::Default => quote! { #fident(); },
+        syn::ReturnType::Type(_, _) => quote! { #fident().map_err(|e| format!("{:#}", e))?; }
+    };
+    let outerrval = match rval {
+        syn::ReturnType::Default => quote! { h.join().unwrap().expect("procspawn result"); },
+        syn::ReturnType::Type(_, _) => quote! { h.join().unwrap().map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, format!("{:#}", e)))?; Ok(()) }
+    };
     // Remove our attribute
     func.attrs = Vec::new();
     let output = quote! {
-        fn #fident() -> std::io::Result<()> {
-            let tmp_dir = tempfile::Builder::new().prefix("procspawn-tmpdir").tempdir()?;
-            let h = procspawn::spawn(tmp_dir.path().to_path_buf(), |path| -> std::result::Result<(), String> {
-                #func
+        fn #fident() #rval {
+            let h = procspawn::spawn((), |_| -> std::result::Result<(), String> {
+                let tmpdir = tempfile::Builder::new().prefix("procspawn-tmpdir").tempdir().expect("procspawn tempdir");
+                let path = tmpdir.path();
                 std::env::set_current_dir(&path).expect("changing to tempdir");
                 std::fs::write(path.join(".procspawn-tmpdir"), "").expect("writing tmpfile stamp");
-                #fident().map_err(|e| e.to_string())?;
+                #func
+                #innercall;
                 Ok(())
             });
-            h.join().unwrap().map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))
+            #outerrval
         }
     };
     output.into()
