@@ -1,6 +1,5 @@
-
 //! This crate provides the [`with_procspawn_tempdir`](attr.with_procspawn_tempdir.html) macro.
-//! 
+//!
 //!
 //! ```
 //! use with_procspawn_tempdir::with_procspawn_tempdir;
@@ -27,11 +26,13 @@ pub fn with_procspawn_tempdir(_: TokenStream, input: TokenStream) -> TokenStream
     let rval = func.sig.output.clone();
     let innercall = match rval {
         syn::ReturnType::Default => quote! { #fident(); },
-        syn::ReturnType::Type(_, _) => quote! { #fident().map_err(|e| format!("{:#}", e))?; }
+        syn::ReturnType::Type(_, _) => quote! { #fident().map_err(|e| format!("{:#}", e))?; },
     };
     let outerrval = match rval {
         syn::ReturnType::Default => quote! { h.join().unwrap().expect("procspawn result"); },
-        syn::ReturnType::Type(_, _) => quote! { h.join().unwrap().map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, format!("{:#}", e)))?; Ok(()) }
+        syn::ReturnType::Type(_, _) => {
+            quote! { h.join().unwrap().map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, format!("{:#}", e)))?; Ok(()) }
+        }
     };
     let fvis = func.vis.clone();
     // Remove our attribute

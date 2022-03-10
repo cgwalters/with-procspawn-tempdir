@@ -1,5 +1,5 @@
-use with_procspawn_tempdir::with_procspawn_tempdir;
 use anyhow::{bail, Result};
+use with_procspawn_tempdir::with_procspawn_tempdir;
 
 #[with_procspawn_tempdir]
 fn basic() -> Result<()> {
@@ -20,8 +20,7 @@ fn err() -> Result<()> {
 }
 
 #[with_procspawn_tempdir]
-fn nores() {
-}
+fn nores() {}
 
 // #[with_procspawn_tempdir]
 // fn nores_panic() {
