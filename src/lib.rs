@@ -33,10 +33,11 @@ pub fn with_procspawn_tempdir(_: TokenStream, input: TokenStream) -> TokenStream
         syn::ReturnType::Default => quote! { h.join().unwrap().expect("procspawn result"); },
         syn::ReturnType::Type(_, _) => quote! { h.join().unwrap().map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, format!("{:#}", e)))?; Ok(()) }
     };
+    let fvis = func.vis.clone();
     // Remove our attribute
     func.attrs = Vec::new();
     let output = quote! {
-        fn #fident() #rval {
+        #fvis fn #fident() #rval {
             let h = procspawn::spawn((), |_| -> std::result::Result<(), String> {
                 let tmpdir = tempfile::Builder::new().prefix("procspawn-tmpdir").tempdir().expect("procspawn tempdir");
                 let path = tmpdir.path();
